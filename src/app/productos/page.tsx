@@ -71,8 +71,8 @@ export default function ProductsPage() {
         }
     }, [urlCategory, urlSubcategory])
 
-    // Número de WhatsApp
-    const whatsappNumber = "5491131819772"
+    // 📱 NÚMERO DE WHATSAPP ACTUALIZADO
+    const whatsappNumber = "5491123255540"
 
     const handleWhatsAppClick = (product: any) => {
         const message = encodeURIComponent(
@@ -245,8 +245,8 @@ export default function ProductsPage() {
                                     variant={selectedCategory === category ? "default" : "outline"}
                                     size="sm"
                                     className={`h-7 px-2 text-xs ${selectedCategory === category
-                                        ? "bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e] border-0"
-                                        : "border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
+                                            ? "bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e] border-0"
+                                            : "border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
                                         }`}
                                 >
                                     {category}
@@ -270,8 +270,8 @@ export default function ProductsPage() {
                                         variant={selectedSubcategory === subcategory ? "default" : "outline"}
                                         size="sm"
                                         className={`h-7 px-2 text-xs ${selectedSubcategory === subcategory
-                                            ? "bg-[#d4b5a8] hover:bg-[#c9a696] text-white border-0"
-                                            : "border-[#d4b5a8] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
+                                                ? "bg-[#d4b5a8] hover:bg-[#c9a696] text-white border-0"
+                                                : "border-[#d4b5a8] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
                                             }`}
                                     >
                                         {subcategory}
@@ -294,8 +294,8 @@ export default function ProductsPage() {
                                     variant={selectedSize === "Todos" ? "default" : "outline"}
                                     size="sm"
                                     className={`h-7 px-2 text-xs ${selectedSize === "Todos"
-                                        ? "bg-[#c9a696] hover:bg-[#be9784] text-white border-0"
-                                        : "border-[#c9a696] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
+                                            ? "bg-[#c9a696] hover:bg-[#be9784] text-white border-0"
+                                            : "border-[#c9a696] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
                                         }`}
                                 >
                                     Todos
@@ -307,8 +307,8 @@ export default function ProductsPage() {
                                         variant={selectedSize === size ? "default" : "outline"}
                                         size="sm"
                                         className={`h-7 px-2 text-xs ${selectedSize === size
-                                            ? "bg-[#c9a696] hover:bg-[#be9784] text-white border-0"
-                                            : "border-[#c9a696] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
+                                                ? "bg-[#c9a696] hover:bg-[#be9784] text-white border-0"
+                                                : "border-[#c9a696] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
                                             }`}
                                     >
                                         {size}
@@ -712,7 +712,7 @@ export default function ProductsPage() {
                                     <MessageCircle className="w-5 h-5 mr-3 text-green-400" />
                                     <div>
                                         <div className="font-medium text-white">WhatsApp</div>
-                                        <div className="text-sm">+54 9 11 3181-9772</div>
+                                        <div className="text-sm">+54 9 11 2325-5540</div>
                                     </div>
                                 </li>
                                 <li className="flex items-center">

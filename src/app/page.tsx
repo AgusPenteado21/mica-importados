@@ -418,7 +418,7 @@ export default function HomePage() {
 
   // Número de WhatsApp
 
-  const whatsappNumber = "5491131819772"
+  const whatsappNumber = "1123255540"
 
   const handleWhatsAppClick = (product: Product) => {
     const message = encodeURIComponent(
@@ -1253,7 +1253,7 @@ export default function HomePage() {
                 <li className="flex items-center text-gray-400">
                   <MessageCircle className="w-4 h-4 mr-2" />
 
-                  <span>WhatsApp: +54 9 11 3181-9772</span>
+                  <span>WhatsApp: +54 9 11 2325-5540</span>
                 </li>
 
                 <li className="flex items-center text-gray-400">
