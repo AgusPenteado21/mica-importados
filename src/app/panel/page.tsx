@@ -1,14 +1,23 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useEffect } from "react"
+
 import { Button } from "@/components/ui/button"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Badge } from "@/components/ui/badge"
+
 import { Input } from "@/components/ui/input"
+
 import { Textarea } from "@/components/ui/textarea"
+
 import { Label } from "@/components/ui/label"
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 import {
     ArrowLeft,
     Plus,
@@ -36,12 +45,17 @@ import {
     RefreshCw,
     Settings,
     AlertTriangle,
+    Menu,
 } from "lucide-react"
+
 import Link from "next/link"
+
 import { createProduct, getProducts, deleteProduct, updateProduct } from "@/lib/firestore-api"
+
 import { uploadImages, validateImages, checkCloudinaryStatus } from "@/lib/upload-helpers"
 
 // Tipos para TypeScript
+
 interface ValidationResult {
     valid: boolean
     validFiles: File[]
@@ -88,8 +102,10 @@ export default function PanelPage() {
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
     const [cloudinaryStatus, setCloudinaryStatus] = useState<"checking" | "connected" | "error">("checking")
     const [cloudinaryError, setCloudinaryError] = useState<string>("")
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     // 🎯 CATEGORÍAS CON TALLES INTELIGENTES
+
     const categoriesData = {
         Joyas: {
             subcategories: ["Anillos", "Pulseras", "Dijes", "Cadenas", "Aros", "Alianzas"],
@@ -139,6 +155,7 @@ export default function PanelPage() {
     }
 
     // 🎯 ESTADO DEL FORMULARIO
+
     const [formData, setFormData] = useState<ProductFormData>({
         name: "",
         description: "",
@@ -159,6 +176,7 @@ export default function PanelPage() {
     const [stockInput, setStockInput] = useState("1")
 
     // 🔥 VERIFICAR CONEXIÓN A CLOUDINARY AL CARGAR
+
     useEffect(() => {
         checkCloudinaryConnection()
     }, [])
@@ -167,7 +185,6 @@ export default function PanelPage() {
         try {
             setCloudinaryStatus("checking")
             setCloudinaryError("")
-
             console.log("🔧 Verificando conexión con Cloudinary...")
 
             const result = (await checkCloudinaryStatus()) as CloudinaryStatusResult
@@ -192,18 +209,21 @@ export default function PanelPage() {
     }
 
     // 🔥 MOSTRAR MENSAJE
+
     const showMessage = (type: "success" | "error", text: string) => {
         setMessage({ type, text })
         setTimeout(() => setMessage(null), 8000)
     }
 
     // 🔥 OBTENER TALLES SUGERIDOS PARA LA CATEGORÍA
+
     const getSuggestedSizes = (category: string): string[] => {
         const categoryData = categoriesData[category as keyof typeof categoriesData]
         return categoryData?.suggestedSizes || []
     }
 
     // 🔥 GENERAR DESCRIPCIÓN CON IA LOCAL INTELIGENTE
+
     const generateDescription = async () => {
         if (!formData.name.trim()) {
             showMessage("error", "Ingresa el nombre del producto primero")
@@ -246,6 +266,7 @@ export default function PanelPage() {
     }
 
     // 🔥 MANEJAR CAMBIO DE CATEGORÍA
+
     const handleCategoryChange = (category: string) => {
         setFormData((prev) => ({
             ...prev,
@@ -257,6 +278,7 @@ export default function PanelPage() {
     }
 
     // 🔥 MANEJAR CAMBIO DE STOCK
+
     const handleStockChange = (value: string) => {
         setStockInput(value)
         const numValue = Number.parseInt(value) || 0
@@ -267,6 +289,7 @@ export default function PanelPage() {
     }
 
     // 🔥 CARGAR PRODUCTOS AL CAMBIAR TAB
+
     useEffect(() => {
         if (activeTab === "manage") {
             fetchProducts()
@@ -287,6 +310,7 @@ export default function PanelPage() {
     }
 
     // 🔥 MANEJAR SUBIDA DE IMÁGENES - CLOUDINARY MEJORADO CON TIPOS
+
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || [])
         if (files.length === 0) return
@@ -294,16 +318,19 @@ export default function PanelPage() {
         console.log("📸 Archivos seleccionados:", files.length)
 
         // Verificar conexión a Cloudinary primero
+
         if (cloudinaryStatus !== "connected") {
             showMessage("error", "Error de conexión a Cloudinary. Haz clic en 'Reconectar' para intentar de nuevo.")
             return
         }
 
         // Validar archivos
+
         const validation = validateImages(files) as ValidationResult
         console.log("📋 Resultado de validación:", validation)
 
         // ✅ LÓGICA MEJORADA: Permitir archivos válidos aunque haya algunos inválidos
+
         if (!validation.valid) {
             console.error("❌ No hay archivos válidos:", validation.errors)
             showMessage("error", `No hay archivos válidos para subir: ${validation.errors.join(", ")}`)
@@ -311,6 +338,7 @@ export default function PanelPage() {
         }
 
         // Mostrar advertencia si hay archivos inválidos, pero continuar con los válidos
+
         if (validation.invalidCount > 0) {
             console.warn(`⚠️ ${validation.invalidCount} archivo(s) inválido(s) serán ignorados`)
             showMessage(
@@ -336,9 +364,11 @@ export default function PanelPage() {
                 }))
 
                 let successMessage = `${result.uploaded} imagen(es) subida(s) correctamente a Cloudinary`
+
                 if (validation.invalidCount > 0) {
                     successMessage += ` (${validation.invalidCount} archivo(s) inválido(s) ignorados)`
                 }
+
                 showMessage("success", successMessage)
             } else {
                 throw new Error(result.errors?.[0] || "No se pudieron subir las imágenes")
@@ -350,6 +380,7 @@ export default function PanelPage() {
             }
 
             // Limpiar el input
+
             e.target.value = ""
         } catch (error: any) {
             console.error("❌ Error uploading images:", error)
@@ -360,6 +391,7 @@ export default function PanelPage() {
     }
 
     // 🔥 AGREGAR TALLE
+
     const addSize = () => {
         if (newSize.trim() && !formData.sizes.includes(newSize.trim())) {
             setFormData((prev) => ({
@@ -371,6 +403,7 @@ export default function PanelPage() {
     }
 
     // 🔥 AGREGAR TALLE SUGERIDO
+
     const addSuggestedSize = (size: string) => {
         if (!formData.sizes.includes(size)) {
             setFormData((prev) => ({
@@ -381,6 +414,7 @@ export default function PanelPage() {
     }
 
     // 🔥 REMOVER TALLE
+
     const removeSize = (sizeToRemove: string) => {
         setFormData((prev) => ({
             ...prev,
@@ -389,6 +423,7 @@ export default function PanelPage() {
     }
 
     // 🔥 AGREGAR CARACTERÍSTICA
+
     const addFeature = () => {
         if (newFeature.trim() && !formData.features.includes(newFeature.trim())) {
             setFormData((prev) => ({
@@ -400,6 +435,7 @@ export default function PanelPage() {
     }
 
     // 🔥 REMOVER CARACTERÍSTICA
+
     const removeFeature = (featureToRemove: string) => {
         setFormData((prev) => ({
             ...prev,
@@ -408,6 +444,7 @@ export default function PanelPage() {
     }
 
     // 🔥 REMOVER IMAGEN
+
     const removeImage = (indexToRemove: number) => {
         setFormData((prev) => ({
             ...prev,
@@ -417,6 +454,7 @@ export default function PanelPage() {
     }
 
     // 🔥 LIMPIAR FORMULARIO
+
     const clearForm = () => {
         setFormData({
             name: "",
@@ -438,10 +476,12 @@ export default function PanelPage() {
     }
 
     // 🔥 CREAR PRODUCTO
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
         // Validaciones
+
         if (!formData.name.trim()) {
             showMessage("error", "El nombre del producto es obligatorio")
             return
@@ -487,7 +527,6 @@ export default function PanelPage() {
             }
 
             await createProduct(productData)
-
             showMessage("success", "¡Producto creado exitosamente!")
             clearForm()
 
@@ -503,6 +542,7 @@ export default function PanelPage() {
     }
 
     // 🔥 ELIMINAR PRODUCTO
+
     const handleDeleteProduct = async (productId: string, productName: string) => {
         if (!confirm(`¿Estás segura de que quieres eliminar "${productName}"?`)) return
 
@@ -517,6 +557,7 @@ export default function PanelPage() {
     }
 
     // 🔥 TOGGLE STOCK
+
     const handleToggleStock = async (product: any) => {
         try {
             await updateProduct(product.id, { inStock: !product.inStock })
@@ -529,16 +570,50 @@ export default function PanelPage() {
     }
 
     // Estadísticas
+
     const totalProducts = products.length
     const activeProducts = products.filter((p: any) => p.inStock).length
     const totalValue = products.reduce((sum: number, p: any) => sum + p.price * (p.stockCount || 1), 0)
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f5f0ed] to-[#ebcfc4]">
-            {/* Header */}
+            {/* 📱 HEADER RESPONSIVE */}
             <header className="bg-white/95 backdrop-blur-md border-b border-[#ebcfc4] sticky top-0 z-50 shadow-sm">
-                <div className="container mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
+                <div className="container mx-auto px-4 py-3 lg:py-4">
+                    {/* 📱 MOBILE HEADER */}
+                    <div className="flex items-center justify-between lg:hidden">
+                        <Link href="/">
+                            <Button variant="ghost" size="sm" className="text-[#9d6a4e] hover:bg-[#f5f0ed] p-2">
+                                <ArrowLeft className="w-4 h-4" />
+                            </Button>
+                        </Link>
+
+                        <div className="text-center">
+                            <h1 className="text-lg font-bold text-[#9d6a4e]">Panel Admin</h1>
+                            <div className="flex items-center justify-center space-x-1">
+                                {cloudinaryStatus === "checking" && <Loader2 className="w-3 h-3 animate-spin text-yellow-500" />}
+                                {cloudinaryStatus === "connected" && <Cloud className="w-3 h-3 text-green-500" />}
+                                {cloudinaryStatus === "error" && <AlertTriangle className="w-3 h-3 text-red-500" />}
+                                <span className="text-xs text-gray-500">
+                                    {cloudinaryStatus === "checking" && "Verificando..."}
+                                    {cloudinaryStatus === "connected" && "OK"}
+                                    {cloudinaryStatus === "error" && "Error"}
+                                </span>
+                            </div>
+                        </div>
+
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="text-[#9d6a4e] hover:bg-[#f5f0ed] p-2"
+                        >
+                            <Menu className="w-4 h-4" />
+                        </Button>
+                    </div>
+
+                    {/* 🖥️ DESKTOP HEADER */}
+                    <div className="hidden lg:flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <Link href="/">
                                 <Button variant="ghost" size="sm" className="text-[#9d6a4e] hover:bg-[#f5f0ed]">
@@ -605,46 +680,101 @@ export default function PanelPage() {
                             </Button>
                         </div>
                     </div>
+
+                    {/* 📱 MOBILE MENU */}
+                    {isMobileMenuOpen && (
+                        <div className="lg:hidden mt-4 pt-4 border-t border-[#ebcfc4] space-y-3">
+                            <div className="flex flex-col space-y-2">
+                                <Button
+                                    onClick={() => {
+                                        setActiveTab("create")
+                                        setIsMobileMenuOpen(false)
+                                    }}
+                                    variant={activeTab === "create" ? "default" : "outline"}
+                                    size="sm"
+                                    className={`w-full justify-start ${activeTab === "create"
+                                            ? "bg-[#9d6a4e] hover:bg-[#b38872] text-white"
+                                            : "border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed]"
+                                        }`}
+                                >
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Crear Producto
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        setActiveTab("manage")
+                                        setIsMobileMenuOpen(false)
+                                    }}
+                                    variant={activeTab === "manage" ? "default" : "outline"}
+                                    size="sm"
+                                    className={`w-full justify-start ${activeTab === "manage"
+                                            ? "bg-[#9d6a4e] hover:bg-[#b38872] text-white"
+                                            : "border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed]"
+                                        }`}
+                                >
+                                    <Package className="w-4 h-4 mr-2" />
+                                    Gestionar ({products.length})
+                                </Button>
+                            </div>
+
+                            {cloudinaryStatus === "error" && (
+                                <Button
+                                    onClick={checkCloudinaryConnection}
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full text-red-600 border-red-200 hover:bg-red-50 bg-transparent"
+                                >
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    Reconectar Cloudinary
+                                </Button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </header>
 
-            {/* Message Alert */}
+            {/* 📱 MESSAGE ALERT RESPONSIVE */}
             {message && (
                 <div className="container mx-auto px-4 pt-4">
                     <div
-                        className={`flex items-center p-4 rounded-lg shadow-sm ${message.type === "success"
-                            ? "bg-green-50 border border-green-200 text-green-800"
-                            : "bg-red-50 border border-red-200 text-red-800"
+                        className={`flex items-start p-3 lg:p-4 rounded-lg shadow-sm ${message.type === "success"
+                                ? "bg-green-50 border border-green-200 text-green-800"
+                                : "bg-red-50 border border-red-200 text-red-800"
                             }`}
                     >
                         {message.type === "success" ? (
-                            <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5 mr-2 flex-shrink-0 mt-0.5" />
                         ) : (
-                            <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                            <AlertCircle className="w-4 h-4 lg:w-5 lg:h-5 mr-2 flex-shrink-0 mt-0.5" />
                         )}
-                        <span className="font-medium">{message.text}</span>
-                        <button onClick={() => setMessage(null)} className="ml-auto text-current hover:opacity-70">
+                        <span className="font-medium text-sm lg:text-base flex-1 pr-2">{message.text}</span>
+                        <button onClick={() => setMessage(null)} className="text-current hover:opacity-70 flex-shrink-0">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* 🔥 ALERTA DE CONFIGURACIÓN DE CLOUDINARY */}
+            {/* 🔥 ALERTA DE CONFIGURACIÓN DE CLOUDINARY RESPONSIVE */}
             {cloudinaryStatus === "error" && (
                 <div className="container mx-auto px-4 pt-4">
                     <Card className="border-red-200 bg-red-50">
-                        <CardContent className="p-4">
-                            <div className="flex items-start space-x-3">
-                                <Settings className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-red-800 mb-2">⚡ Configuración de Cloudinary requerida</h3>
-                                    <p className="text-red-700 mb-3">
+                        <CardContent className="p-4 lg:p-6">
+                            <div className="flex flex-col lg:flex-row lg:items-start space-y-3 lg:space-y-0 lg:space-x-3">
+                                <Settings className="w-6 h-6 text-red-600 flex-shrink-0" />
+                                <div className="flex-1 space-y-3">
+                                    <h3 className="font-semibold text-red-800 text-base lg:text-lg">
+                                        ⚡ Configuración de Cloudinary requerida
+                                    </h3>
+                                    <p className="text-red-700 text-sm lg:text-base">
                                         Para subir imágenes necesitas configurar Cloudinary (no Firebase). Error: {cloudinaryError}
                                     </p>
-                                    <div className="bg-red-100 p-3 rounded-lg mb-3">
-                                        <p className="text-sm text-red-800 font-medium mb-2">🔧 Pasos para configurar Cloudinary:</p>
-                                        <ol className="text-sm text-red-700 space-y-1 list-decimal list-inside">
+
+                                    <div className="bg-red-100 p-3 lg:p-4 rounded-lg space-y-3">
+                                        <p className="text-sm lg:text-base text-red-800 font-medium">
+                                            🔧 Pasos para configurar Cloudinary:
+                                        </p>
+                                        <ol className="text-sm lg:text-base text-red-700 space-y-2 list-decimal list-inside">
                                             <li>
                                                 Ve a <strong>cloudinary.com</strong> y crea una cuenta gratuita
                                             </li>
@@ -656,15 +786,15 @@ export default function PanelPage() {
                                                 En Railway, ve a tu proyecto → <strong>Variables</strong>
                                             </li>
                                             <li>Agrega estas variables de entorno:</li>
-                                            <ul className="ml-4 mt-1 space-y-1 list-disc list-inside">
+                                            <ul className="ml-4 mt-2 space-y-1 list-disc list-inside text-xs lg:text-sm">
                                                 <li>
-                                                    <code>CLOUDINARY_CLOUD_NAME=dwnjpcjhi</code>
+                                                    <code className="bg-red-200 px-1 rounded">CLOUDINARY_CLOUD_NAME=dwnjpcjhi</code>
                                                 </li>
                                                 <li>
-                                                    <code>CLOUDINARY_API_KEY=163361771712489</code>
+                                                    <code className="bg-red-200 px-1 rounded">CLOUDINARY_API_KEY=163361771712489</code>
                                                 </li>
                                                 <li>
-                                                    <code>CLOUDINARY_API_SECRET=tu_api_secret_aqui</code>
+                                                    <code className="bg-red-200 px-1 rounded">CLOUDINARY_API_SECRET=tu_api_secret_aqui</code>
                                                 </li>
                                             </ul>
                                             <li>
@@ -672,9 +802,12 @@ export default function PanelPage() {
                                             </li>
                                         </ol>
                                     </div>
-                                    <div className="bg-blue-100 p-3 rounded-lg">
-                                        <p className="text-sm text-blue-800 font-medium mb-1">☁️ ¿Por qué Cloudinary y no Firebase?</p>
-                                        <ul className="text-sm text-blue-700 space-y-1">
+
+                                    <div className="bg-blue-100 p-3 lg:p-4 rounded-lg">
+                                        <p className="text-sm lg:text-base text-blue-800 font-medium mb-2">
+                                            ☁️ ¿Por qué Cloudinary y no Firebase?
+                                        </p>
+                                        <ul className="text-sm lg:text-base text-blue-700 space-y-1">
                                             <li>• Railway tiene sistema de archivos efímero (se reinicia)</li>
                                             <li>• Cloudinary es gratuito hasta 25GB y 25,000 transformaciones/mes</li>
                                             <li>• Optimización automática de imágenes</li>
@@ -689,65 +822,68 @@ export default function PanelPage() {
                 </div>
             )}
 
-            <div className="container mx-auto px-4 py-8">
-                {/* Stats Cards - Solo en gestión */}
+            <div className="container mx-auto px-4 py-4 lg:py-8">
+                {/* 📊 STATS CARDS RESPONSIVE - Solo en gestión */}
                 {activeTab === "manage" && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
                         <Card>
-                            <CardContent className="p-6">
+                            <CardContent className="p-4 lg:p-6">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-sm font-medium text-[#b38872]">Total Productos</p>
-                                        <p className="text-2xl font-bold text-[#9d6a4e]">{totalProducts}</p>
+                                        <p className="text-xl lg:text-2xl font-bold text-[#9d6a4e]">{totalProducts}</p>
                                     </div>
-                                    <Package className="w-8 h-8 text-[#ebcfc4]" />
+                                    <Package className="w-6 h-6 lg:w-8 lg:h-8 text-[#ebcfc4]" />
                                 </div>
                             </CardContent>
                         </Card>
 
                         <Card>
-                            <CardContent className="p-6">
+                            <CardContent className="p-4 lg:p-6">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-sm font-medium text-[#b38872]">Productos Activos</p>
-                                        <p className="text-2xl font-bold text-green-600">{activeProducts}</p>
+                                        <p className="text-xl lg:text-2xl font-bold text-green-600">{activeProducts}</p>
                                     </div>
-                                    <TrendingUp className="w-8 h-8 text-green-400" />
+                                    <TrendingUp className="w-6 h-6 lg:w-8 lg:h-8 text-green-400" />
                                 </div>
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardContent className="p-6">
+                        <Card className="sm:col-span-2 lg:col-span-1">
+                            <CardContent className="p-4 lg:p-6">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-sm font-medium text-[#b38872]">Valor Total</p>
-                                        <p className="text-2xl font-bold text-[#9d6a4e]">ARS ${totalValue.toLocaleString()}</p>
+                                        <p className="text-lg lg:text-2xl font-bold text-[#9d6a4e]">ARS ${totalValue.toLocaleString()}</p>
                                     </div>
-                                    <ShoppingCart className="w-8 h-8 text-[#ebcfc4]" />
+                                    <ShoppingCart className="w-6 h-6 lg:w-8 lg:h-8 text-[#ebcfc4]" />
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
                 )}
 
-                {/* Crear Producto */}
+                {/* 📝 CREAR PRODUCTO RESPONSIVE */}
                 {activeTab === "create" && (
                     <div className="max-w-4xl mx-auto">
                         <Card className="border-0 shadow-xl">
-                            <CardHeader className="bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] text-white">
-                                <CardTitle className="flex items-center text-xl">
-                                    <Plus className="w-5 h-5 mr-2" />
+                            <CardHeader className="bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] text-white p-4 lg:p-6">
+                                <CardTitle className="flex items-center text-lg lg:text-xl">
+                                    <Plus className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
                                     Crear Nuevo Producto
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6">
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    {/* Información Básica */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <CardContent className="p-4 lg:p-6">
+                                <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
+                                    {/* 📱 INFORMACIÓN BÁSICA RESPONSIVE */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                                         <div className="space-y-4">
                                             <div>
-                                                <Label htmlFor="name" className="text-[#9d6a4e] font-medium flex items-center">
+                                                <Label
+                                                    htmlFor="name"
+                                                    className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base"
+                                                >
                                                     <Tag className="w-4 h-4 mr-2" />
                                                     Nombre del Producto *
                                                 </Label>
@@ -762,7 +898,10 @@ export default function PanelPage() {
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="price" className="text-[#9d6a4e] font-medium flex items-center">
+                                                <Label
+                                                    htmlFor="price"
+                                                    className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base"
+                                                >
                                                     <DollarSign className="w-4 h-4 mr-2" />
                                                     Precio (ARS) *
                                                 </Label>
@@ -782,7 +921,10 @@ export default function PanelPage() {
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="badge" className="text-[#9d6a4e] font-medium flex items-center">
+                                                <Label
+                                                    htmlFor="badge"
+                                                    className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base"
+                                                >
                                                     <Star className="w-4 h-4 mr-2" />
                                                     Badge/Etiqueta
                                                 </Label>
@@ -796,7 +938,10 @@ export default function PanelPage() {
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="stockCount" className="text-[#9d6a4e] font-medium flex items-center">
+                                                <Label
+                                                    htmlFor="stockCount"
+                                                    className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base"
+                                                >
                                                     <Package className="w-4 h-4 mr-2" />
                                                     Cantidad en Stock
                                                 </Label>
@@ -813,7 +958,7 @@ export default function PanelPage() {
 
                                         <div className="space-y-4">
                                             <div>
-                                                <Label htmlFor="category" className="text-[#9d6a4e] font-medium">
+                                                <Label htmlFor="category" className="text-[#9d6a4e] font-medium text-sm lg:text-base">
                                                     Categoría *
                                                 </Label>
                                                 <Select value={formData.category} onValueChange={handleCategoryChange}>
@@ -834,7 +979,7 @@ export default function PanelPage() {
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="subcategory" className="text-[#9d6a4e] font-medium">
+                                                <Label htmlFor="subcategory" className="text-[#9d6a4e] font-medium text-sm lg:text-base">
                                                     Subcategoría *
                                                 </Label>
                                                 <Select
@@ -866,17 +1011,20 @@ export default function PanelPage() {
                                                     onChange={(e) => setFormData((prev) => ({ ...prev, inStock: e.target.checked }))}
                                                     className="rounded border-[#ebcfc4]"
                                                 />
-                                                <Label htmlFor="inStock" className="text-[#9d6a4e] font-medium">
+                                                <Label htmlFor="inStock" className="text-[#9d6a4e] font-medium text-sm lg:text-base">
                                                     Producto disponible en stock
                                                 </Label>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Descripción con IA */}
+                                    {/* 📝 DESCRIPCIÓN CON IA RESPONSIVE */}
                                     <div>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <Label htmlFor="description" className="text-[#9d6a4e] font-medium flex items-center">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                                            <Label
+                                                htmlFor="description"
+                                                className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base"
+                                            >
                                                 <FileText className="w-4 h-4 mr-2" />
                                                 Descripción
                                             </Label>
@@ -885,7 +1033,7 @@ export default function PanelPage() {
                                                 onClick={generateDescription}
                                                 disabled={generatingDescription || !formData.name.trim()}
                                                 size="sm"
-                                                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
+                                                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 w-full sm:w-auto"
                                             >
                                                 {generatingDescription ? (
                                                     <>
@@ -910,19 +1058,23 @@ export default function PanelPage() {
                                         />
                                     </div>
 
-                                    {/* Talles */}
+                                    {/* 📏 TALLES RESPONSIVE */}
                                     <div>
-                                        <Label className="text-[#9d6a4e] font-medium flex items-center">
+                                        <Label className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base">
                                             <Ruler className="w-4 h-4 mr-2" />
                                             Talles Disponibles
                                             {formData.category && (
-                                                <span className="ml-2 text-sm text-gray-500">(Sugeridos para {formData.category})</span>
+                                                <span className="ml-2 text-xs lg:text-sm text-gray-500">
+                                                    (Sugeridos para {formData.category})
+                                                </span>
                                             )}
                                         </Label>
 
                                         {formData.category && getSuggestedSizes(formData.category).length > 0 && (
                                             <div className="mt-2 mb-3">
-                                                <p className="text-sm text-gray-600 mb-2">Talles sugeridos para {formData.category}:</p>
+                                                <p className="text-xs lg:text-sm text-gray-600 mb-2">
+                                                    Talles sugeridos para {formData.category}:
+                                                </p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {getSuggestedSizes(formData.category).map((size) => (
                                                         <Button
@@ -932,8 +1084,8 @@ export default function PanelPage() {
                                                             size="sm"
                                                             variant="outline"
                                                             className={`text-xs ${formData.sizes.includes(size)
-                                                                ? "bg-[#ebcfc4] text-[#9d6a4e] border-[#ebcfc4]"
-                                                                : "border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed]"
+                                                                    ? "bg-[#ebcfc4] text-[#9d6a4e] border-[#ebcfc4]"
+                                                                    : "border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed]"
                                                                 }`}
                                                             disabled={formData.sizes.includes(size)}
                                                         >
@@ -958,18 +1110,18 @@ export default function PanelPage() {
                                                                 : "Ej: Pequeño, Mediano, Grande"
                                                     }
                                                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSize())}
+                                                    className="flex-1"
                                                 />
                                                 <Button
                                                     type="button"
                                                     onClick={addSize}
                                                     size="sm"
-                                                    className="bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e]"
+                                                    className="bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e] px-3"
                                                     disabled={!newSize.trim()}
                                                 >
                                                     <Plus className="w-4 h-4" />
                                                 </Button>
                                             </div>
-
                                             {formData.sizes.length > 0 && (
                                                 <div className="flex flex-wrap gap-2">
                                                     {formData.sizes.map((size, index) => (
@@ -989,9 +1141,9 @@ export default function PanelPage() {
                                         </div>
                                     </div>
 
-                                    {/* Características */}
+                                    {/* 🎨 CARACTERÍSTICAS RESPONSIVE */}
                                     <div>
-                                        <Label className="text-[#9d6a4e] font-medium flex items-center">
+                                        <Label className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base">
                                             <Palette className="w-4 h-4 mr-2" />
                                             Características
                                         </Label>
@@ -1002,12 +1154,13 @@ export default function PanelPage() {
                                                     onChange={(e) => setNewFeature(e.target.value)}
                                                     placeholder="Ej: Importado, Alta calidad, Garantía"
                                                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addFeature())}
+                                                    className="flex-1"
                                                 />
                                                 <Button
                                                     type="button"
                                                     onClick={addFeature}
                                                     size="sm"
-                                                    className="bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e]"
+                                                    className="bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e] px-3"
                                                     disabled={!newFeature.trim()}
                                                 >
                                                     <Plus className="w-4 h-4" />
@@ -1032,17 +1185,17 @@ export default function PanelPage() {
                                         </div>
                                     </div>
 
-                                    {/* 🔥 IMÁGENES CON CLOUDINARY */}
+                                    {/* 🖼️ IMÁGENES RESPONSIVE */}
                                     <div>
-                                        <Label className="text-[#9d6a4e] font-medium flex items-center">
+                                        <Label className="text-[#9d6a4e] font-medium flex items-center text-sm lg:text-base">
                                             <ImageIcon className="w-4 h-4 mr-2" />
                                             Imágenes del Producto *
                                         </Label>
 
                                         <div className="mt-2 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                            <div className="flex items-center space-x-2">
-                                                <Cloud className="w-4 h-4 text-blue-600" />
-                                                <p className="text-sm text-blue-800">
+                                            <div className="flex items-start space-x-2">
+                                                <Cloud className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                                                <p className="text-xs lg:text-sm text-blue-800">
                                                     <strong>Cloudinary CDN:</strong> Las imágenes se suben a Cloudinary (no Firebase) y se
                                                     optimizan automáticamente. Compatible con Railway y otros hosts.
                                                 </p>
@@ -1051,9 +1204,9 @@ export default function PanelPage() {
 
                                         <div className="mt-2">
                                             <div
-                                                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${cloudinaryStatus === "connected"
-                                                    ? "border-[#ebcfc4] hover:border-[#d4b5a8] bg-white"
-                                                    : "border-red-300 bg-red-50"
+                                                className={`border-2 border-dashed rounded-lg p-4 lg:p-6 text-center transition-colors ${cloudinaryStatus === "connected"
+                                                        ? "border-[#ebcfc4] hover:border-[#d4b5a8] bg-white"
+                                                        : "border-red-300 bg-red-50"
                                                     }`}
                                             >
                                                 <input
@@ -1067,17 +1220,18 @@ export default function PanelPage() {
                                                 />
                                                 <label
                                                     htmlFor="image-upload"
-                                                    className={`cursor-pointer block ${cloudinaryStatus !== "connected" ? "cursor-not-allowed" : ""}`}
+                                                    className={`cursor-pointer block ${cloudinaryStatus !== "connected" ? "cursor-not-allowed" : ""
+                                                        }`}
                                                 >
                                                     {uploadingImages ? (
-                                                        <Loader2 className="w-12 h-12 mx-auto mb-3 text-[#9d6a4e] animate-spin" />
+                                                        <Loader2 className="w-8 h-8 lg:w-12 lg:h-12 mx-auto mb-3 text-[#9d6a4e] animate-spin" />
                                                     ) : cloudinaryStatus === "error" ? (
-                                                        <AlertTriangle className="w-12 h-12 mx-auto mb-3 text-red-500" />
+                                                        <AlertTriangle className="w-8 h-8 lg:w-12 lg:h-12 mx-auto mb-3 text-red-500" />
                                                     ) : (
-                                                        <Upload className="w-12 h-12 mx-auto mb-3 text-[#9d6a4e]" />
+                                                        <Upload className="w-8 h-8 lg:w-12 lg:h-12 mx-auto mb-3 text-[#9d6a4e]" />
                                                     )}
                                                     <p
-                                                        className={`text-lg font-medium mb-2 ${cloudinaryStatus === "connected" ? "text-[#9d6a4e]" : "text-red-600"
+                                                        className={`text-base lg:text-lg font-medium mb-2 ${cloudinaryStatus === "connected" ? "text-[#9d6a4e]" : "text-red-600"
                                                             }`}
                                                     >
                                                         {uploadingImages
@@ -1086,7 +1240,7 @@ export default function PanelPage() {
                                                                 ? "Configuración de Cloudinary requerida"
                                                                 : "Haz clic para subir imágenes"}
                                                     </p>
-                                                    <p className="text-sm text-gray-500">
+                                                    <p className="text-xs lg:text-sm text-gray-500">
                                                         {cloudinaryStatus === "error"
                                                             ? "Configura Cloudinary para subir imágenes"
                                                             : "JPG, PNG, WebP, GIF - Máximo 10MB por imagen"}
@@ -1094,15 +1248,15 @@ export default function PanelPage() {
                                                 </label>
                                             </div>
 
-                                            {/* Preview de imágenes */}
+                                            {/* 🖼️ PREVIEW DE IMÁGENES RESPONSIVE */}
                                             {formData.imageUrls.length > 0 && (
-                                                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
                                                     {formData.imageUrls.map((url, index) => (
                                                         <div key={index} className="relative group">
                                                             <img
                                                                 src={url || "/placeholder.svg"}
                                                                 alt={`Imagen ${index + 1}`}
-                                                                className="w-full h-24 object-cover rounded-lg border border-[#ebcfc4]"
+                                                                className="w-full h-20 lg:h-24 object-cover rounded-lg border border-[#ebcfc4]"
                                                             />
                                                             <button
                                                                 type="button"
@@ -1121,20 +1275,20 @@ export default function PanelPage() {
                                         </div>
                                     </div>
 
-                                    {/* Botones */}
-                                    <div className="flex justify-between pt-6">
+                                    {/* 🔘 BOTONES RESPONSIVE */}
+                                    <div className="flex flex-col sm:flex-row sm:justify-between gap-3 pt-4 lg:pt-6">
                                         <Button
                                             type="button"
                                             onClick={clearForm}
                                             variant="outline"
-                                            className="border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent"
+                                            className="border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent w-full sm:w-auto"
                                         >
                                             Limpiar
                                         </Button>
                                         <Button
                                             type="submit"
                                             disabled={loading || uploadingImages || cloudinaryStatus !== "connected"}
-                                            className="bg-[#9d6a4e] hover:bg-[#b38872] text-white"
+                                            className="bg-[#9d6a4e] hover:bg-[#b38872] text-white w-full sm:w-auto"
                                         >
                                             {loading ? (
                                                 <>
@@ -1155,27 +1309,27 @@ export default function PanelPage() {
                     </div>
                 )}
 
-                {/* Gestionar Productos */}
+                {/* 📦 GESTIONAR PRODUCTOS RESPONSIVE */}
                 {activeTab === "manage" && (
                     <div>
                         <Card className="border-0 shadow-xl">
-                            <CardHeader className="bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] text-white">
-                                <CardTitle className="flex items-center text-xl">
-                                    <Package className="w-5 h-5 mr-2" />
+                            <CardHeader className="bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] text-white p-4 lg:p-6">
+                                <CardTitle className="flex items-center text-lg lg:text-xl">
+                                    <Package className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
                                     Gestión de Productos
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6">
+                            <CardContent className="p-4 lg:p-6">
                                 {loadingProducts ? (
                                     <div className="flex items-center justify-center py-12">
-                                        <Loader2 className="w-8 h-8 animate-spin text-[#9d6a4e]" />
-                                        <span className="ml-2 text-[#9d6a4e]">Cargando productos...</span>
+                                        <Loader2 className="w-6 h-6 lg:w-8 lg:h-8 animate-spin text-[#9d6a4e]" />
+                                        <span className="ml-2 text-[#9d6a4e] text-sm lg:text-base">Cargando productos...</span>
                                     </div>
                                 ) : products.length === 0 ? (
                                     <div className="text-center py-12">
-                                        <Package className="w-16 h-16 mx-auto text-[#ebcfc4] mb-4" />
-                                        <h3 className="text-lg font-medium text-[#9d6a4e] mb-2">No hay productos</h3>
-                                        <p className="text-[#b38872] mb-4">Crea tu primer producto para comenzar</p>
+                                        <Package className="w-12 h-12 lg:w-16 lg:h-16 mx-auto text-[#ebcfc4] mb-4" />
+                                        <h3 className="text-base lg:text-lg font-medium text-[#9d6a4e] mb-2">No hay productos</h3>
+                                        <p className="text-[#b38872] mb-4 text-sm lg:text-base">Crea tu primer producto para comenzar</p>
                                         <Button
                                             onClick={() => setActiveTab("create")}
                                             className="bg-[#9d6a4e] hover:bg-[#b38872] text-white"
@@ -1185,58 +1339,67 @@ export default function PanelPage() {
                                         </Button>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                                         {products.map((product: any) => (
                                             <Card key={product.id} className="border border-[#ebcfc4] hover:shadow-lg transition-shadow">
                                                 <div className="relative">
                                                     <img
                                                         src={product.mainImage || product.images?.[0] || "/placeholder.svg?height=200&width=300"}
                                                         alt={product.name}
-                                                        className="w-full h-48 object-cover rounded-t-lg"
+                                                        className="w-full h-40 lg:h-48 object-cover rounded-t-lg"
                                                         onError={(e) => {
                                                             const target = e.target as HTMLImageElement
                                                             target.src = "/placeholder.svg?height=200&width=300"
                                                         }}
                                                     />
-                                                    <div className="absolute top-2 right-2 flex gap-2">
+                                                    <div className="absolute top-2 right-2 flex flex-col gap-1">
                                                         <Badge
                                                             variant={product.inStock ? "default" : "secondary"}
-                                                            className={product.inStock ? "bg-green-500" : "bg-gray-500"}
+                                                            className={`${product.inStock ? "bg-green-500" : "bg-gray-500"} text-xs`}
                                                         >
                                                             {product.inStock ? "En Stock" : "Sin Stock"}
                                                         </Badge>
-                                                        {product.badge && <Badge className="bg-[#9d6a4e]">{product.badge}</Badge>}
+                                                        {product.badge && <Badge className="bg-[#9d6a4e] text-xs">{product.badge}</Badge>}
                                                     </div>
                                                 </div>
-                                                <CardContent className="p-4">
-                                                    <h3 className="font-semibold text-[#9d6a4e] mb-2 line-clamp-2">{product.name}</h3>
-                                                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</p>
+
+                                                <CardContent className="p-3 lg:p-4">
+                                                    <h3 className="font-semibold text-[#9d6a4e] mb-2 line-clamp-2 text-sm lg:text-base">
+                                                        {product.name}
+                                                    </h3>
+                                                    <p className="text-xs lg:text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</p>
+
                                                     <div className="flex items-center justify-between mb-3">
-                                                        <span className="text-lg font-bold text-[#9d6a4e]">
+                                                        <span className="text-base lg:text-lg font-bold text-[#9d6a4e]">
                                                             ARS ${product.price?.toLocaleString()}
                                                         </span>
-                                                        <span className="text-sm text-gray-500">Stock: {product.stockCount || 1}</span>
+                                                        <span className="text-xs lg:text-sm text-gray-500">Stock: {product.stockCount || 1}</span>
                                                     </div>
+
                                                     <div className="flex gap-2">
                                                         <Button
                                                             onClick={() => handleToggleStock(product)}
                                                             size="sm"
                                                             variant="outline"
-                                                            className={`flex-1 ${product.inStock
-                                                                ? "border-red-200 text-red-600 hover:bg-red-50"
-                                                                : "border-green-200 text-green-600 hover:bg-green-50"
+                                                            className={`flex-1 text-xs lg:text-sm ${product.inStock
+                                                                    ? "border-red-200 text-red-600 hover:bg-red-50"
+                                                                    : "border-green-200 text-green-600 hover:bg-green-50"
                                                                 }`}
                                                         >
-                                                            {product.inStock ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
+                                                            {product.inStock ? (
+                                                                <EyeOff className="w-3 h-3 lg:w-4 lg:h-4 mr-1" />
+                                                            ) : (
+                                                                <Eye className="w-3 h-3 lg:w-4 lg:h-4 mr-1" />
+                                                            )}
                                                             {product.inStock ? "Ocultar" : "Mostrar"}
                                                         </Button>
                                                         <Button
                                                             onClick={() => handleDeleteProduct(product.id, product.name)}
                                                             size="sm"
                                                             variant="outline"
-                                                            className="border-red-200 text-red-600 hover:bg-red-50"
+                                                            className="border-red-200 text-red-600 hover:bg-red-50 px-2 lg:px-3"
                                                         >
-                                                            <Trash2 className="w-4 h-4" />
+                                                            <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
                                                         </Button>
                                                     </div>
                                                 </CardContent>
