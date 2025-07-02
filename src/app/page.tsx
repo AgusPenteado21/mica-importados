@@ -1,19 +1,12 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
-
 import { Button } from "@/components/ui/button"
-
 import { Card, CardContent } from "@/components/ui/card"
-
 import { Badge } from "@/components/ui/badge"
-
 import { Input } from "@/components/ui/input"
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-
 import {
   ShoppingCart,
   Search,
@@ -36,21 +29,13 @@ import {
   ChevronRight,
   Lock,
 } from "lucide-react"
-
 import Link from "next/link"
-
 import { useRouter } from "next/navigation"
-
 import { useCart } from "@/components/ui/cart-provider"
-
 import { CartDrawer } from "@/components/ui/cart-drawer"
-
 import { CompactNavigationMenu } from "@/components/compact-navigation-menu"
-
 import { CategoriesCarousel } from "@/components/categories-carousel"
-
 import { useProducts } from "@/hooks/useProducts"
-
 import { getProductCountByCategory } from "@/lib/firestore-api"
 
 // Importar funciones de Firestore para el PIN
@@ -59,53 +44,31 @@ import { db } from "@/lib/firebase" // Asumiendo que tienes la configuración de
 
 interface Product {
   id: string
-
   name: string
-
   price: number
-
   images?: string[]
-
   image?: string
-
   mainImage?: string
-
   category: string
-
   subcategory: string
-
   badge?: string
-
   description?: string
-
   features?: string[]
-
   whatsappMessage?: string
-
   sizes?: string[] | null
-
   inStock?: boolean
 }
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
   const [searchTerm, setSearchTerm] = useState("")
-
   const [isCartOpen, setIsCartOpen] = useState(false)
-
   const { state, dispatch } = useCart()
-
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
-
   const [categoryCounts, setCategoryCounts] = useState<{ [key: string]: number }>({})
-
   const [loadingCounts, setLoadingCounts] = useState(true)
-
   const [countsError, setCountsError] = useState<string | null>(null)
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // 🔐 Estados para el PIN del panel
@@ -113,104 +76,73 @@ export default function HomePage() {
   const [pinInput, setPinInput] = useState("")
   const [pinError, setPinError] = useState("")
   const [isVerifyingPin, setIsVerifyingPin] = useState(false)
-
   const router = useRouter()
 
   // PIN correcto
   const CORRECT_PIN = "753159"
 
   // 🔥 USAR HOOK DE PRODUCTOS PARA BÚSQUEDA
-
   const {
     products: searchResults,
-
     loading: searchLoading,
-
     error: searchError,
   } = useProducts({
     search: searchTerm || undefined,
-
     inStock: true,
   })
 
   // 🔥 USAR HOOK PARA PRODUCTOS DESTACADOS
-
   const {
     products: featuredProducts,
-
     loading: loadingFeatured,
-
     error: featuredError,
-
     refetch: refetchFeatured,
   } = useProducts({
     featured: true,
-
     inStock: true,
   })
 
   // 🔥 OBTENER CONTEOS POR CATEGORÍA (MÁS SIMPLE)
-
   const fetchCategoryCounts = async () => {
     try {
       setLoadingCounts(true)
-
       setCountsError(null)
-
       console.log("📊 [HomePage] Iniciando conteo de categorías...")
 
       const categoryNames = [
         "Joyas",
-
         "Perfumería",
-
         "Blanquería",
-
         "Carteras y Bolsos",
-
         "Juguetes y Peluches",
-
         "Electrodomésticos",
-
         "Zapatillas",
-
         "Ropa",
-
         "Ollas y Accesorios de Cocina",
       ]
 
       const counts: { [key: string]: number } = {}
 
       // Obtener conteos uno por uno para evitar problemas
-
       for (const categoryName of categoryNames) {
         try {
           console.log(`📊 [HomePage] Contando: ${categoryName}`)
-
           const count = await getProductCountByCategory(categoryName)
-
           counts[categoryName] = count
-
           console.log(`📊 [HomePage] ${categoryName}: ${count} productos`)
-
           // Pequeña pausa para no sobrecargar Firestore
-
           await new Promise((resolve) => setTimeout(resolve, 100))
         } catch (error) {
           console.warn(`⚠️ [HomePage] Error contando ${categoryName}:`, error)
-
           counts[categoryName] = 0
         }
       }
 
       setCategoryCounts(counts)
-
       console.log("📊 [HomePage] Conteos completados:", counts)
     } catch (error) {
       console.error("❌ [HomePage] Error general en conteos:", error)
-
       setCountsError("Error al cargar conteos de categorías")
-
       setCategoryCounts({})
     } finally {
       setLoadingCounts(false)
@@ -222,7 +154,6 @@ export default function HomePage() {
   }, [])
 
   // 🔐 FUNCIONES PARA EL PIN DEL PANEL
-
   const handlePanelClick = () => {
     setIsPinModalOpen(true)
     setPinInput("")
@@ -259,7 +190,6 @@ export default function HomePage() {
       localStorage.setItem("admin_auth_time", Date.now().toString())
 
       console.log("✅ PIN correcto, acceso autorizado")
-
       setIsPinModalOpen(false)
       router.push("/panel")
     } catch (error) {
@@ -283,150 +213,92 @@ export default function HomePage() {
   }
 
   // Categorías principales con subcategorías
-
   const categories = [
     {
       name: "Joyas",
-
       icon: "💎",
-
       count: categoryCounts["Joyas"] || 0,
-
       color: "from-[#ebcfc4] to-[#d4b5a8]",
-
       description: "Elegancia en cada detalle",
-
       subcategories: ["Anillos", "Pulseras", "Dijes", "Cadenas", "Aros", "Alianzas"],
     },
-
     {
       name: "Perfumería",
-
       icon: "🌸",
-
       count: categoryCounts["Perfumería"] || 0,
-
       color: "from-[#d4b5a8] to-[#c9a696]",
-
       description: "Fragancias exclusivas importadas",
-
       subcategories: ["Perfumes Dama", "Perfumes Hombre", "Cremas", "Maquillaje"],
     },
-
     {
       name: "Blanquería",
-
       icon: "🛏️",
-
       count: categoryCounts["Blanquería"] || 0,
-
       color: "from-[#c9a696] to-[#be9784]",
-
       description: "Ropa de cama y textiles premium",
-
       subcategories: ["Acolchados", "Sábanas", "Toallas", "Cortinas"],
     },
-
     {
       name: "Carteras y Bolsos",
-
       icon: "👜",
-
       count: categoryCounts["Carteras y Bolsos"] || 0,
-
       color: "from-[#be9784] to-[#b38872]",
-
       description: "Accesorios de lujo y funcionalidad",
-
       subcategories: ["Carteras", "Bolsos", "Mochilas", "Billeteras"],
     },
-
     {
       name: "Juguetes y Peluches",
-
       icon: "🧸",
-
       count: categoryCounts["Juguetes y Peluches"] || 0,
-
       color: "from-[#b38872] to-[#a67760]",
-
       description: "Diversión y entretenimiento",
-
       subcategories: ["Juguetes", "Peluches", "Educativos"],
     },
-
     {
       name: "Electrodomésticos",
-
       icon: "⚡",
-
       count: categoryCounts["Electrodomésticos"] || 0,
-
       color: "from-[#a67760] to-[#99664e]",
-
       description: "Tecnología para el hogar",
-
       subcategories: ["Cocina", "Limpieza", "Cuidado Personal"],
     },
-
     {
       name: "Zapatillas",
-
       icon: "👟",
-
       count: categoryCounts["Zapatillas"] || 0,
-
       color: "from-[#99664e] to-[#8c553c]",
-
       description: "Calzado deportivo y casual",
-
       subcategories: ["Hombre", "Mujer", "Niños", "Deportivas"],
     },
-
     {
       name: "Ropa",
-
       icon: "👕",
-
       count: categoryCounts["Ropa"] || 0,
-
       color: "from-[#8c553c] to-[#7f442a]",
-
       description: "Moda importada de calidad",
-
       subcategories: ["Hombre", "Mujer", "Niños", "Accesorios"],
     },
-
     {
       name: "Ollas y Accesorios de Cocina",
-
       icon: "🧑‍🍳",
-
       count: categoryCounts["Ollas y Accesorios de Cocina"] || 0,
-
       color: "from-[#7f442a] to-[#723318]",
-
       description: "Utensilios de cocina premium",
-
       subcategories: ["Ollas", "Sartenes", "Utensilios", "Vajilla"],
     },
   ]
 
   // Filtrar solo categorías que tienen productos
-
   const categoriesWithProducts = categories.filter((cat) => cat.count > 0)
 
-  // Número de WhatsApp
-
-  const whatsappNumber = "1123255540"
+  // 📱 NÚMERO DE WHATSAPP ACTUALIZADO
+  const whatsappNumber = "5491123255540"
 
   const handleWhatsAppClick = (product: Product) => {
     const message = encodeURIComponent(
       product.whatsappMessage || `Hola! Me interesa el producto: ${product.name}. ¿Podrías darme más información?`,
     )
-
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`
-
     window.open(whatsappUrl, "_blank")
   }
 
@@ -434,23 +306,17 @@ export default function HomePage() {
     const message = encodeURIComponent(
       "Hola! Me gustaría conocer más sobre sus productos importados. ¿Podrían ayudarme?",
     )
-
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`
-
     window.open(whatsappUrl, "_blank")
   }
 
   const handleAddToCart = (product: Product) => {
     dispatch({
       type: "ADD_ITEM",
-
       payload: {
         id: String(product.id),
-
         name: product.name,
-
         price: product.price,
-
         image: product.image || product.mainImage || "/placeholder.svg",
       },
     })
@@ -458,9 +324,7 @@ export default function HomePage() {
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product)
-
     setCurrentImageIndex(0) // Resetear al abrir modal
-
     setIsProductModalOpen(true)
   }
 
@@ -470,31 +334,25 @@ export default function HomePage() {
 
   const closeProductModal = () => {
     setIsProductModalOpen(false)
-
     setSelectedProduct(null)
-
     setCurrentImageIndex(0)
   }
 
   // 🖼️ FUNCIONES PARA EL CARRUSEL DE IMÁGENES
-
   const getProductImages = (product: Product): string[] => {
     const images: string[] = []
 
     // Agregar imagen principal si existe
-
     if (product.mainImage) {
       images.push(product.mainImage)
     }
 
     // Agregar imagen individual si existe y es diferente a la principal
-
     if (product.image && product.image !== product.mainImage) {
       images.push(product.image)
     }
 
     // Agregar array de imágenes si existe
-
     if (product.images && Array.isArray(product.images)) {
       product.images.forEach((img) => {
         if (img && !images.includes(img)) {
@@ -504,7 +362,6 @@ export default function HomePage() {
     }
 
     // Si no hay imágenes, usar placeholder
-
     if (images.length === 0) {
       images.push("/placeholder.svg")
     }
@@ -515,7 +372,6 @@ export default function HomePage() {
   const nextImage = () => {
     if (selectedProduct) {
       const images = getProductImages(selectedProduct)
-
       setCurrentImageIndex((prev) => (prev + 1) % images.length)
     }
   }
@@ -523,7 +379,6 @@ export default function HomePage() {
   const prevImage = () => {
     if (selectedProduct) {
       const images = getProductImages(selectedProduct)
-
       setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
     }
   }
@@ -533,75 +388,58 @@ export default function HomePage() {
   }
 
   // 🎯 LÓGICA DE PRODUCTOS A MOSTRAR
-
   const productsToShow = searchTerm ? searchResults : featuredProducts
-
   const isSearching = searchTerm.length > 0
-
   const hasSearchResults = searchResults.length > 0
-
   const hasFeaturedProducts = featuredProducts.length > 0
-
   const totalProducts = Object.values(categoryCounts).reduce((total, count) => total + count, 0)
 
   // Error principal a mostrar
-
   const mainError = isSearching ? searchError : featuredError
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f5f0ed] to-[#ebcfc4]">
       {/* Header */}
-
       <header className="bg-white/95 backdrop-blur-md border-b border-[#ebcfc4] sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
-
+            {/* 🎨 LOGO MÁS GRANDE */}
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-lg flex items-center justify-center shadow-md">
-                <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-5 h-5 object-contain" />
+              <div className="w-12 h-12 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-lg flex items-center justify-center shadow-md">
+                <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-8 h-8 object-contain" />
               </div>
-
               <div>
-                <h1 className="text-lg font-bold text-[#9d6a4e]">Moreian Multimarcas</h1>
-
-                <p className="text-xs text-[#b38872] leading-none">Premium</p>
+                <h1 className="text-xl font-bold text-[#9d6a4e]">Moreian Multimarcas</h1>
+                <p className="text-sm text-[#b38872] leading-none">Productos Premium</p>
               </div>
             </Link>
 
             {/* Navigation */}
-
             <nav className="hidden lg:flex items-center space-x-6">
               <Link href="/" className="text-sm text-[#9d6a4e] font-medium bg-[#f5f0ed] px-3 py-2 rounded-lg">
                 Inicio
               </Link>
-
               <Link
                 href="/productos"
                 className="text-sm text-gray-700 hover:text-[#9d6a4e] font-medium transition-colors px-3 py-2 rounded-lg hover:bg-[#f5f0ed]"
               >
                 Productos
               </Link>
-
               <CompactNavigationMenu />
             </nav>
 
             {/* Actions */}
-
             <div className="flex items-center space-x-3">
               {/* Search */}
-
               <div className="hidden md:flex items-center">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#b38872]" />
-
                   <Input
                     placeholder="Buscar productos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 w-64 h-10 bg-[#f5f0ed] border-[#ebcfc4] focus:bg-white focus:border-[#d4b5a8]"
                   />
-
                   {searchLoading && (
                     <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#b38872] animate-spin" />
                   )}
@@ -609,10 +447,8 @@ export default function HomePage() {
               </div>
 
               {/* Cart */}
-
               <Button variant="ghost" size="sm" className="relative" onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart className="w-5 h-5 text-[#9d6a4e]" />
-
                 {state.items.length > 0 && (
                   <Badge className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center bg-[#d4b5a8] text-xs">
                     {state.items.reduce((total, item) => total + item.quantity, 0)}
@@ -632,7 +468,6 @@ export default function HomePage() {
               </Button>
 
               {/* Mobile Menu */}
-
               <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
@@ -640,34 +475,28 @@ export default function HomePage() {
           </div>
 
           {/* Mobile Menu */}
-
           {isMenuOpen && (
             <div className="lg:hidden mt-4 pb-4 border-t border-[#ebcfc4]">
               <div className="pt-4 space-y-4">
                 {/* Search Mobile */}
-
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#b38872]" />
-
                   <Input
                     placeholder="Buscar productos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 w-full h-10"
                   />
-
                   {searchLoading && (
                     <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#b38872] animate-spin" />
                   )}
                 </div>
 
                 {/* Navigation Links */}
-
                 <div className="flex flex-col space-y-2">
                   <Link href="/" className="text-sm text-[#9d6a4e] font-medium py-2">
                     Inicio
                   </Link>
-
                   <Link href="/productos" className="text-sm text-gray-700 hover:text-[#9d6a4e] font-medium py-2">
                     Productos
                   </Link>
@@ -681,24 +510,20 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section - Solo mostrar si no hay búsqueda */}
-
       {!isSearching && (
         <section className="relative py-8 lg:py-16">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-6 shadow-sm">
                 <Gem className="w-4 h-4 mr-2 text-[#9d6a4e]" />
-
                 <span className="text-sm font-medium text-[#9d6a4e]">Productos de Calidad Premium</span>
               </div>
 
               <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 text-[#9d6a4e] leading-tight">
                 <span className="block">Moreian</span>
-
                 <span className="block bg-gradient-to-r from-[#9d6a4e] to-[#b38872] bg-clip-text text-transparent">
                   Multimarcas
                 </span>
-
                 <span className="block text-2xl md:text-3xl lg:text-5xl text-[#b38872]">Productos Premium</span>
               </h1>
 
@@ -714,7 +539,6 @@ export default function HomePage() {
                     Explorar Productos
                   </Button>
                 </Link>
-
                 <Button
                   onClick={handleGeneralWhatsApp}
                   variant="outline"
@@ -726,7 +550,6 @@ export default function HomePage() {
               </div>
 
               {/* Stats - SIN RATING */}
-
               <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                 <div className="text-center">
                   <div className="text-xl md:text-2xl font-bold text-[#9d6a4e]">
@@ -740,10 +563,8 @@ export default function HomePage() {
                       "0"
                     )}
                   </div>
-
                   <div className="text-xs md:text-sm text-[#b38872]">Productos</div>
                 </div>
-
                 <div className="text-center">
                   <div className="text-xl md:text-2xl font-bold text-[#9d6a4e]">
                     {loadingCounts ? (
@@ -752,7 +573,6 @@ export default function HomePage() {
                       categoriesWithProducts.length
                     )}
                   </div>
-
                   <div className="text-xs md:text-sm text-[#b38872]">Categorías</div>
                 </div>
               </div>
@@ -762,7 +582,6 @@ export default function HomePage() {
       )}
 
       {/* Features - Solo mostrar si no hay búsqueda */}
-
       {!isSearching && (
         <section className="py-8 bg-white/50">
           <div className="container mx-auto px-4">
@@ -771,9 +590,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-[#ebcfc4] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Truck className="w-6 h-6 text-[#9d6a4e]" />
                 </div>
-
                 <h3 className="text-lg font-bold text-[#9d6a4e] mb-2">Envío en el Día</h3>
-
                 <p className="text-sm text-[#b38872]">
                   Entrega el mismo día en Moreno y alrededores. Rápido y confiable para que recibas tus productos al
                   instante.
@@ -784,9 +601,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-[#ebcfc4] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Shield className="w-6 h-6 text-[#9d6a4e]" />
                 </div>
-
                 <h3 className="text-lg font-bold text-[#9d6a4e] mb-2">Garantía Total</h3>
-
                 <p className="text-sm text-[#b38872]">
                   Productos de calidad garantizada. 30 días para devoluciones sin preguntas.
                 </p>
@@ -796,9 +611,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-[#ebcfc4] rounded-full flex items-center justify-center mx-auto mb-3">
                   <CreditCard className="w-6 h-6 text-[#9d6a4e]" />
                 </div>
-
                 <h3 className="text-lg font-bold text-[#9d6a4e] mb-2">Pago Fácil</h3>
-
                 <p className="text-sm text-[#b38872]">
                   Pago por transferencia bancaria. Te enviamos el alias al consultar por WhatsApp. Simple y seguro.
                 </p>
@@ -809,31 +622,26 @@ export default function HomePage() {
       )}
 
       {/* Categories Carousel */}
-
       {!isSearching && !loadingCounts && categoriesWithProducts.length > 0 && (
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-[#9d6a4e]">Explora por Categorías</h2>
-
               <p className="text-base md:text-lg text-[#b38872] max-w-2xl mx-auto">
                 Encuentra exactamente lo que buscas en nuestras categorías disponibles
               </p>
             </div>
-
             <CategoriesCarousel categories={categoriesWithProducts} />
           </div>
         </section>
       )}
 
       {/* Products Section */}
-
       <section className="py-12 bg-white/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <div className="inline-flex items-center bg-[#f5f0ed] rounded-full px-4 py-2 mb-4">
               <Gem className="w-4 h-4 mr-2 text-[#9d6a4e]" />
-
               <span className="text-sm font-medium text-[#9d6a4e]">
                 {isSearching ? "Resultados de Búsqueda" : "Productos Destacados"}
               </span>
@@ -853,11 +661,9 @@ export default function HomePage() {
           </div>
 
           {/* Loading State */}
-
           {(searchLoading && isSearching) || (!isSearching && loadingFeatured) ? (
             <div className="text-center py-12">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#9d6a4e]" />
-
               <p className="text-[#b38872]">
                 {isSearching ? "Buscando productos..." : "Cargando productos destacados..."}
               </p>
@@ -865,27 +671,19 @@ export default function HomePage() {
           ) : (
             <>
               {/* Error State */}
-
               {mainError && (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">⚠️</div>
-
                   <h3 className="text-2xl font-bold text-red-600 mb-2">Error al cargar productos</h3>
-
                   <p className="text-red-700 mb-6 max-w-2xl mx-auto">{mainError}</p>
 
                   {/* Información de debugging */}
-
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto text-left">
                     <h4 className="font-semibold text-gray-800 mb-2">🔧 Información de Debug:</h4>
-
                     <ul className="text-gray-700 text-sm space-y-1">
                       <li>• Abre la consola del navegador (F12) para ver más detalles</li>
-
                       <li>• El índice está creado en Firebase Console</li>
-
                       <li>• Verifica que los productos existan en Firestore</li>
-
                       <li>• Intenta recargar la página</li>
                     </ul>
                   </div>
@@ -898,7 +696,6 @@ export default function HomePage() {
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Recargar Página
                     </Button>
-
                     <Button
                       onClick={isSearching ? () => setSearchTerm("") : refetchFeatured}
                       variant="outline"
@@ -912,12 +709,10 @@ export default function HomePage() {
               )}
 
               {/* Products Grid - IMÁGENES MEJORADAS */}
-
               {!mainError && productsToShow.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {productsToShow.map((product: any) => {
                     const productImages = getProductImages(product)
-
                     return (
                       <Card
                         key={product.id}
@@ -925,7 +720,6 @@ export default function HomePage() {
                       >
                         <CardContent className="p-0">
                           {/* 🖼️ CONTENEDOR DE IMAGEN MEJORADO */}
-
                           <div className="relative overflow-hidden bg-white">
                             <div className="w-full h-56 flex items-center justify-center p-4">
                               <img
@@ -937,7 +731,6 @@ export default function HomePage() {
                             </div>
 
                             {/* Indicador de múltiples imágenes */}
-
                             {productImages.length > 1 && (
                               <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
                                 +{productImages.length - 1} fotos
@@ -956,7 +749,6 @@ export default function HomePage() {
                               <Badge variant="secondary" className="text-xs bg-[#f5f0ed] text-[#9d6a4e] font-medium">
                                 {product.category}
                               </Badge>
-
                               <div className="text-xs text-gray-500 mt-1">{product.subcategory}</div>
                             </div>
 
@@ -965,11 +757,9 @@ export default function HomePage() {
                             </h3>
 
                             {/* Mostrar talles si existen */}
-
                             {product.sizes && product.sizes.length > 0 && (
                               <div className="mb-2">
                                 <div className="text-xs text-gray-600 mb-1">Talles:</div>
-
                                 <div className="flex flex-wrap gap-1">
                                   {product.sizes.slice(0, 3).map((size: string) => (
                                     <span
@@ -979,7 +769,6 @@ export default function HomePage() {
                                       {size}
                                     </span>
                                   ))}
-
                                   {product.sizes.length > 3 && (
                                     <span className="text-xs text-gray-400">+{product.sizes.length - 3}</span>
                                   )}
@@ -1003,7 +792,6 @@ export default function HomePage() {
                                 <Plus className="w-4 h-4 mr-1" />
                                 Agregar
                               </Button>
-
                               <Button
                                 onClick={() => handleWhatsAppClick(product)}
                                 className="bg-green-500 hover:bg-green-600 text-white border-0 py-2 px-3 h-9"
@@ -1020,17 +808,13 @@ export default function HomePage() {
               )}
 
               {/* No Results - Búsqueda */}
-
               {!searchLoading && isSearching && !hasSearchResults && !searchError && (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">🔍</div>
-
                   <h3 className="text-2xl font-bold text-[#9d6a4e] mb-2">No se encontraron productos</h3>
-
                   <p className="text-[#b38872] mb-6">
                     No hay productos que coincidan con "{searchTerm}". Intenta con otros términos de búsqueda.
                   </p>
-
                   <Button onClick={() => setSearchTerm("")} className="bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e]">
                     Limpiar búsqueda
                   </Button>
@@ -1038,18 +822,14 @@ export default function HomePage() {
               )}
 
               {/* No Products - Sin búsqueda */}
-
               {!loadingFeatured && !isSearching && !hasFeaturedProducts && !featuredError && (
                 <div className="text-center py-16">
                   <div className="text-8xl mb-6">📦</div>
-
                   <h3 className="text-3xl font-bold text-[#9d6a4e] mb-4">¡Próximamente!</h3>
-
                   <p className="text-lg text-[#b38872] mb-8 max-w-2xl mx-auto leading-relaxed">
                     Estamos preparando una increíble selección de productos premium para ti. Muy pronto tendrás acceso a
                     joyas, perfumería, blanquería y mucho más.
                   </p>
-
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button
                       onClick={handleGeneralWhatsApp}
@@ -1058,7 +838,6 @@ export default function HomePage() {
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Consultar Disponibilidad
                     </Button>
-
                     <Button
                       variant="outline"
                       className="border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent px-6 py-3 text-base font-semibold"
@@ -1073,7 +852,6 @@ export default function HomePage() {
           )}
 
           {/* Ver Todos los Productos */}
-
           {!isSearching && hasFeaturedProducts && !featuredError && (
             <div className="text-center mt-10">
               <Link href="/productos">
@@ -1088,14 +866,12 @@ export default function HomePage() {
       </section>
 
       {/* Contact CTA - Solo mostrar si no hay búsqueda */}
-
       {!isSearching && (
         <section className="py-12 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8]">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
               <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
                 <MessageCircle className="w-4 h-4 mr-2 text-white" />
-
                 <span className="text-sm font-medium text-white">Atención Personalizada</span>
               </div>
 
@@ -1117,7 +893,6 @@ export default function HomePage() {
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Contactar por WhatsApp
                 </Button>
-
                 <Button
                   variant="outline"
                   className="border-white text-white hover:bg-white hover:text-[#9d6a4e] px-6 py-3 text-base font-semibold bg-transparent"
@@ -1132,21 +907,17 @@ export default function HomePage() {
       )}
 
       {/* Footer */}
-
       <footer className="bg-gray-900 text-white py-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            {/* Brand */}
-
+            {/* 🎨 LOGO MÁS GRANDE EN FOOTER */}
             <div className="lg:col-span-1">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-xl flex items-center justify-center">
-                  <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-6 h-6 object-contain" />
+                <div className="w-16 h-16 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-xl flex items-center justify-center shadow-lg">
+                  <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-10 h-10 object-contain" />
                 </div>
-
                 <div>
-                  <h3 className="text-lg font-bold text-white">Moreian Multimarcas</h3>
-
+                  <h3 className="text-xl font-bold text-white">Moreian Multimarcas</h3>
                   <p className="text-sm text-[#ebcfc4]">Productos Premium</p>
                 </div>
               </div>
@@ -1157,10 +928,8 @@ export default function HomePage() {
             </div>
 
             {/* Categories - Columna 1 */}
-
             <div>
               <h4 className="font-bold text-lg mb-4 text-white">Categorías</h4>
-
               <ul className="space-y-2">
                 <li>
                   <Link
@@ -1170,7 +939,6 @@ export default function HomePage() {
                     Joyas
                   </Link>
                 </li>
-
                 <li>
                   <Link
                     href="/productos?category=Perfumería"
@@ -1179,7 +947,6 @@ export default function HomePage() {
                     Perfumería
                   </Link>
                 </li>
-
                 <li>
                   <Link
                     href="/productos?category=Blanquería"
@@ -1188,7 +955,6 @@ export default function HomePage() {
                     Blanquería
                   </Link>
                 </li>
-
                 <li>
                   <Link
                     href="/productos?category=Carteras y Bolsos"
@@ -1201,10 +967,8 @@ export default function HomePage() {
             </div>
 
             {/* Categories - Columna 2 */}
-
             <div>
               <h4 className="font-bold text-lg mb-4 text-white">Más Categorías</h4>
-
               <ul className="space-y-2">
                 <li>
                   <Link
@@ -1214,7 +978,6 @@ export default function HomePage() {
                     Juguetes y Peluches
                   </Link>
                 </li>
-
                 <li>
                   <Link
                     href="/productos?category=Electrodomésticos"
@@ -1223,7 +986,6 @@ export default function HomePage() {
                     Electrodomésticos
                   </Link>
                 </li>
-
                 <li>
                   <Link
                     href="/productos?category=Zapatillas"
@@ -1232,7 +994,6 @@ export default function HomePage() {
                     Zapatillas
                   </Link>
                 </li>
-
                 <li>
                   <Link
                     href="/productos?category=Ropa"
@@ -1245,20 +1006,15 @@ export default function HomePage() {
             </div>
 
             {/* Contact */}
-
             <div>
               <h4 className="font-bold text-lg mb-4 text-white">Contacto</h4>
-
               <ul className="space-y-2">
                 <li className="flex items-center text-gray-400">
                   <MessageCircle className="w-4 h-4 mr-2" />
-
                   <span>WhatsApp: +54 9 11 2325-5540</span>
                 </li>
-
                 <li className="flex items-center text-gray-400">
                   <MapPin className="w-4 h-4 mr-2" />
-
                   <span>Moreno, Buenos Aires</span>
                 </li>
               </ul>
@@ -1282,7 +1038,6 @@ export default function HomePage() {
       </footer>
 
       {/* Cart Drawer */}
-
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -1362,14 +1117,12 @@ export default function HomePage() {
       </Dialog>
 
       {/* 🖼️ MODAL DE PRODUCTO CON CARRUSEL DE IMÁGENES */}
-
       {isProductModalOpen && selectedProduct && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold text-[#9d6a4e]">{selectedProduct.name}</h2>
-
                 <Button variant="ghost" size="sm" onClick={closeProductModal}>
                   <X className="w-5 h-5" />
                 </Button>
@@ -1377,10 +1130,8 @@ export default function HomePage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* 🖼️ CARRUSEL DE IMÁGENES */}
-
                 <div className="space-y-4">
                   {/* Imagen Principal */}
-
                   <div className="relative bg-white rounded-lg p-4 border border-gray-200">
                     <div className="flex items-center justify-center h-96">
                       <img
@@ -1391,7 +1142,6 @@ export default function HomePage() {
                     </div>
 
                     {/* Controles del carrusel - Solo mostrar si hay más de 1 imagen */}
-
                     {getProductImages(selectedProduct).length > 1 && (
                       <>
                         <Button
@@ -1402,7 +1152,6 @@ export default function HomePage() {
                         >
                           <ChevronLeft className="w-4 h-4" />
                         </Button>
-
                         <Button
                           variant="ghost"
                           size="sm"
@@ -1413,7 +1162,6 @@ export default function HomePage() {
                         </Button>
 
                         {/* Contador de imágenes */}
-
                         <div className="absolute bottom-4 right-4 bg-black/70 text-white text-sm px-3 py-1 rounded-full">
                           {currentImageIndex + 1} / {getProductImages(selectedProduct).length}
                         </div>
@@ -1422,7 +1170,6 @@ export default function HomePage() {
                   </div>
 
                   {/* Miniaturas - Solo mostrar si hay más de 1 imagen */}
-
                   {getProductImages(selectedProduct).length > 1 && (
                     <div className="grid grid-cols-4 gap-2">
                       {getProductImages(selectedProduct).map((image, index) => (
@@ -1430,8 +1177,8 @@ export default function HomePage() {
                           key={index}
                           onClick={() => goToImage(index)}
                           className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
-                            ? "border-[#9d6a4e] ring-2 ring-[#9d6a4e]/20"
-                            : "border-gray-200 hover:border-[#9d6a4e]/50"
+                              ? "border-[#9d6a4e] ring-2 ring-[#9d6a4e]/20"
+                              : "border-gray-200 hover:border-[#9d6a4e]/50"
                             }`}
                         >
                           <img
@@ -1446,11 +1193,9 @@ export default function HomePage() {
                 </div>
 
                 {/* Información del Producto */}
-
                 <div className="space-y-6">
                   <div>
                     <Badge className="bg-[#f5f0ed] text-[#9d6a4e] mb-2">{selectedProduct.category}</Badge>
-
                     <div className="text-sm text-gray-600">{selectedProduct.subcategory}</div>
                   </div>
 
@@ -1459,7 +1204,6 @@ export default function HomePage() {
                   {selectedProduct.description && (
                     <div>
                       <h4 className="font-semibold text-[#9d6a4e] mb-2">Descripción</h4>
-
                       <p className="text-gray-700 leading-relaxed">{selectedProduct.description}</p>
                     </div>
                   )}
@@ -1467,7 +1211,6 @@ export default function HomePage() {
                   {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
                     <div>
                       <h4 className="font-semibold text-[#9d6a4e] mb-3">Talles Disponibles</h4>
-
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.sizes.map((size: string) => (
                           <span
@@ -1484,12 +1227,10 @@ export default function HomePage() {
                   {selectedProduct.features && selectedProduct.features.length > 0 && (
                     <div>
                       <h4 className="font-semibold text-[#9d6a4e] mb-3">Características</h4>
-
                       <ul className="space-y-2">
                         {selectedProduct.features.map((feature: string, index: number) => (
                           <li key={index} className="text-gray-700 flex items-start">
                             <span className="text-[#9d6a4e] mr-3 mt-1">•</span>
-
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -1498,21 +1239,17 @@ export default function HomePage() {
                   )}
 
                   {/* Información de envío */}
-
                   <div className="bg-[#f5f0ed] rounded-lg p-4">
                     <h4 className="font-semibold text-[#9d6a4e] mb-3">Información de Envío</h4>
-
                     <ul className="text-sm text-gray-600 space-y-2">
                       <li className="flex items-center">
                         <Truck className="w-4 h-4 mr-2 text-[#9d6a4e]" />
                         Envío en el día en Moreno y alrededores
                       </li>
-
                       <li className="flex items-center">
                         <Shield className="w-4 h-4 mr-2 text-[#9d6a4e]" />
                         Garantía de 30 días
                       </li>
-
                       <li className="flex items-center">
                         <CreditCard className="w-4 h-4 mr-2 text-[#9d6a4e]" />
                         Pago por transferencia bancaria
@@ -1521,12 +1258,10 @@ export default function HomePage() {
                   </div>
 
                   {/* Botones de acción */}
-
                   <div className="flex gap-4 pt-4">
                     <Button
                       onClick={() => {
                         handleAddToCart(selectedProduct)
-
                         closeProductModal()
                       }}
                       className="flex-1 bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e] border-0 py-3 text-lg font-semibold"
@@ -1534,11 +1269,9 @@ export default function HomePage() {
                       <Plus className="w-5 h-5 mr-2" />
                       Agregar al Carrito
                     </Button>
-
                     <Button
                       onClick={() => {
                         handleWhatsAppClick(selectedProduct)
-
                         closeProductModal()
                       }}
                       className="bg-green-500 hover:bg-green-600 text-white border-0 py-3 px-6 text-lg font-semibold"

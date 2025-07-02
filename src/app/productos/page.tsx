@@ -71,7 +71,7 @@ export default function ProductsPage() {
         }
     }, [urlCategory, urlSubcategory])
 
-    // 📱 NÚMERO DE WHATSAPP ACTUALIZADO
+    // 📱 NÚMERO DE WHATSAPP CORREGIDO
     const whatsappNumber = "5491123255540"
 
     const handleWhatsAppClick = (product: any) => {
@@ -126,15 +126,16 @@ export default function ProductsPage() {
         <div className="min-h-screen bg-gradient-to-br from-[#f5f0ed] to-[#ebcfc4]">
             {/* Header Optimizado */}
             <header className="bg-white/95 backdrop-blur-md border-b border-[#ebcfc4] sticky top-0 z-50 shadow-sm">
-                <div className="container mx-auto px-4 py-2">
+                <div className="container mx-auto px-4 py-3">
                     <div className="flex items-center justify-between">
-                        {/* Logo Compacto */}
-                        <Link href="/" className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-lg flex items-center justify-center">
-                                <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-5 h-5 object-contain" />
+                        {/* 🎨 LOGO MÁS GRANDE */}
+                        <Link href="/" className="flex items-center space-x-3">
+                            <div className="w-12 h-12 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-xl flex items-center justify-center shadow-md">
+                                <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-8 h-8 object-contain" />
                             </div>
                             <div className="hidden sm:block">
-                                <h1 className="text-lg font-bold text-[#9d6a4e]">Moreian Multimarcas</h1>
+                                <h1 className="text-xl font-bold text-[#9d6a4e]">Moreian Multimarcas</h1>
+                                <p className="text-xs text-[#b38872]">Productos Premium</p>
                             </div>
                         </Link>
 
@@ -142,35 +143,40 @@ export default function ProductsPage() {
                         <nav className="hidden md:flex items-center space-x-4">
                             <Link
                                 href="/"
-                                className="text-sm text-gray-700 hover:text-[#9d6a4e] font-medium transition-colors px-2 py-1 rounded hover:bg-[#f5f0ed]"
+                                className="text-sm text-gray-700 hover:text-[#9d6a4e] font-medium transition-colors px-3 py-2 rounded-lg hover:bg-[#f5f0ed]"
                             >
                                 Inicio
                             </Link>
-                            <Link href="/productos" className="text-sm text-[#9d6a4e] font-medium bg-[#f5f0ed] px-2 py-1 rounded">
+                            <Link href="/productos" className="text-sm text-[#9d6a4e] font-medium bg-[#f5f0ed] px-3 py-2 rounded-lg">
                                 Productos
                             </Link>
                         </nav>
 
                         {/* Search y Actions Compactos */}
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                             {/* Search Desktop */}
                             <div className="hidden lg:flex items-center">
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-[#b38872]" />
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#b38872]" />
                                     <Input
-                                        placeholder="Buscar..."
+                                        placeholder="Buscar productos..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-7 w-48 h-8 text-sm bg-[#f5f0ed] border-[#ebcfc4] focus:bg-white focus:border-[#d4b5a8]"
+                                        className="pl-10 w-56 h-10 text-sm bg-[#f5f0ed] border-[#ebcfc4] focus:bg-white focus:border-[#d4b5a8] rounded-lg"
                                     />
                                 </div>
                             </div>
 
                             {/* Cart Button */}
-                            <Button variant="ghost" size="sm" className="relative h-8 w-8 p-0" onClick={() => setIsCartOpen(true)}>
-                                <ShoppingCart className="w-4 h-4 text-[#9d6a4e]" />
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="relative h-10 w-10 p-0 rounded-lg"
+                                onClick={() => setIsCartOpen(true)}
+                            >
+                                <ShoppingCart className="w-5 h-5 text-[#9d6a4e]" />
                                 {state.items.length > 0 && (
-                                    <Badge className="absolute -top-1 -right-1 w-4 h-4 p-0 flex items-center justify-center bg-[#d4b5a8] text-xs">
+                                    <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-[#d4b5a8] text-xs font-bold">
                                         {state.items.reduce((total, item) => total + item.quantity, 0)}
                                     </Badge>
                                 )}
@@ -180,33 +186,39 @@ export default function ProductsPage() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="md:hidden h-8 w-8 p-0"
+                                className="md:hidden h-10 w-10 p-0 rounded-lg"
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                             >
-                                {isMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                             </Button>
                         </div>
                     </div>
 
                     {/* Mobile Menu Compacto */}
                     {isMenuOpen && (
-                        <div className="md:hidden mt-2 pb-2 border-t border-[#ebcfc4]">
-                            <nav className="flex flex-col space-y-2 mt-2">
-                                <Link href="/" className="text-sm text-gray-700 hover:text-[#9d6a4e] font-medium py-1">
+                        <div className="md:hidden mt-4 pb-4 border-t border-[#ebcfc4]">
+                            <nav className="flex flex-col space-y-3 mt-4">
+                                <Link
+                                    href="/"
+                                    className="text-sm text-gray-700 hover:text-[#9d6a4e] font-medium py-2 px-3 rounded-lg hover:bg-[#f5f0ed] transition-colors"
+                                >
                                     Inicio
                                 </Link>
-                                <Link href="/productos" className="text-sm text-[#9d6a4e] font-medium py-1">
+                                <Link
+                                    href="/productos"
+                                    className="text-sm text-[#9d6a4e] font-medium py-2 px-3 bg-[#f5f0ed] rounded-lg"
+                                >
                                     Productos
                                 </Link>
                                 {/* Search Mobile */}
                                 <div className="pt-2">
                                     <div className="relative">
-                                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-[#b38872]" />
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#b38872]" />
                                         <Input
                                             placeholder="Buscar productos..."
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-7 w-full h-8 text-sm"
+                                            className="pl-10 w-full h-10 text-sm rounded-lg"
                                         />
                                     </div>
                                 </div>
@@ -602,14 +614,14 @@ export default function ProductsPage() {
             <footer className="bg-gray-900 text-white py-8">
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                        {/* Brand */}
+                        {/* 🎨 LOGO MÁS GRANDE EN FOOTER */}
                         <div className="lg:col-span-1">
                             <div className="flex items-center space-x-3 mb-4">
-                                <div className="w-10 h-10 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-xl flex items-center justify-center">
-                                    <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-6 h-6 object-contain" />
+                                <div className="w-16 h-16 bg-gradient-to-r from-[#ebcfc4] to-[#d4b5a8] rounded-xl flex items-center justify-center shadow-lg">
+                                    <img src="/logo.png" alt="Moreian Multimarcas Logo" className="w-10 h-10 object-contain" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white">Moreian Multimarcas</h3>
+                                    <h3 className="text-xl font-bold text-white">Moreian Multimarcas</h3>
                                     <p className="text-sm text-[#ebcfc4]">Productos Premium</p>
                                 </div>
                             </div>
