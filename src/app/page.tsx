@@ -13,7 +13,6 @@ import {
   Menu,
   X,
   Truck,
-  Shield,
   CreditCard,
   MessageCircle,
   ArrowRight,
@@ -71,6 +70,12 @@ export default function HomePage() {
   const [countsError, setCountsError] = useState<string | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
+  // 🎨 Estados para el banner automático
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
+
+  // 🖼️ Imágenes del banner (6 fotos)
+  const bannerImages = ["/1.jpg", "/2.jpg", "/3.jpg", "/4.jpg", "/5.jpg", "/6.jpg"]
+
   // 🔐 Estados para el PIN del panel
   const [isPinModalOpen, setIsPinModalOpen] = useState(false)
   const [pinInput, setPinInput] = useState("")
@@ -101,6 +106,16 @@ export default function HomePage() {
     featured: true,
     inStock: true,
   })
+
+  // 🎯 LÓGICA DE PRODUCTOS A MOSTRAR - MOVER AQUÍ
+  const productsToShow = searchTerm ? searchResults : featuredProducts
+  const isSearching = searchTerm.length > 0
+  const hasSearchResults = searchResults.length > 0
+  const hasFeaturedProducts = featuredProducts.length > 0
+  const totalProducts = Object.values(categoryCounts).reduce((total, count) => total + count, 0)
+
+  // Error principal a mostrar
+  const mainError = isSearching ? searchError : featuredError
 
   // 🔥 OBTENER CONTEOS POR CATEGORÍA (MÁS SIMPLE)
   const fetchCategoryCounts = async () => {
@@ -152,6 +167,17 @@ export default function HomePage() {
   useEffect(() => {
     fetchCategoryCounts()
   }, [])
+
+  // 🎨 Carrusel automático del banner
+  useEffect(() => {
+    if (!isSearching && bannerImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentBannerIndex((prev) => (prev + 1) % bannerImages.length)
+      }, 4000) // Cambiar cada 4 segundos
+
+      return () => clearInterval(interval)
+    }
+  }, [isSearching, bannerImages.length])
 
   // 🔐 FUNCIONES PARA EL PIN DEL PANEL
   const handlePanelClick = () => {
@@ -387,16 +413,6 @@ export default function HomePage() {
     setCurrentImageIndex(index)
   }
 
-  // 🎯 LÓGICA DE PRODUCTOS A MOSTRAR
-  const productsToShow = searchTerm ? searchResults : featuredProducts
-  const isSearching = searchTerm.length > 0
-  const hasSearchResults = searchResults.length > 0
-  const hasFeaturedProducts = featuredProducts.length > 0
-  const totalProducts = Object.values(categoryCounts).reduce((total, count) => total + count, 0)
-
-  // Error principal a mostrar
-  const mainError = isSearching ? searchError : featuredError
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f5f0ed] to-[#ebcfc4]">
       {/* Header */}
@@ -511,30 +527,64 @@ export default function HomePage() {
 
       {/* Hero Section - Solo mostrar si no hay búsqueda */}
       {!isSearching && (
-        <section className="relative py-8 lg:py-16">
-          <div className="container mx-auto px-4">
+        <section className="relative py-8 lg:py-16 overflow-hidden">
+          {/* 🎨 BANNER DE FONDO CON CARRUSEL AUTOMÁTICO */}
+          <div className="absolute inset-0 z-0">
+            <div className="relative w-full h-full">
+              {bannerImages.map((image, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${index === currentBannerIndex ? "opacity-30" : "opacity-0"
+                    }`}
+                >
+                  <img
+                    src={image || "/placeholder.svg"}
+                    alt={`Banner ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+              {/* Overlay sutil para legibilidad del texto */}
+              <div className="absolute inset-0 bg-black/20"></div>
+            </div>
+
+            {/* Indicadores del banner */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+              {bannerImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentBannerIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentBannerIndex ? "bg-white shadow-lg scale-110" : "bg-white/50 hover:bg-white/70"
+                    }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Contenido del Hero */}
+          <div className="container mx-auto px-4 relative z-10">
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-6 shadow-sm">
-                <Gem className="w-4 h-4 mr-2 text-[#9d6a4e]" />
-                <span className="text-sm font-medium text-[#9d6a4e]">Productos de Calidad Premium</span>
+              <div className="inline-flex items-center rounded-full px-4 py-2 mb-6">
+                <Gem className="w-4 h-4 mr-2 text-white" />
+                <span className="text-sm font-medium text-white">Productos de Calidad Premium</span>
               </div>
 
-              <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 text-[#9d6a4e] leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 text-white leading-tight">
                 <span className="block">Moreian</span>
-                <span className="block bg-gradient-to-r from-[#9d6a4e] to-[#b38872] bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                   Multimarcas
                 </span>
-                <span className="block text-2xl md:text-3xl lg:text-5xl text-[#b38872]">Productos Premium</span>
+                <span className="block text-2xl md:text-3xl lg:text-5xl text-white">Productos Premium</span>
               </h1>
 
-              <p className="text-base md:text-lg lg:text-xl text-[#b38872] mb-8 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-base md:text-lg lg:text-xl text-white mb-8 leading-relaxed max-w-3xl mx-auto font-medium">
                 Descubre nuestra colección exclusiva de joyas, perfumería, blanquería, carteras y mucho más. Productos
                 importados directamente para ofrecerte lo mejor del mundo.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <Link href="/productos">
-                  <Button className="bg-[#ebcfc4] hover:bg-[#d4b5a8] text-[#9d6a4e] border-0 px-6 py-3 text-base font-semibold">
+                  <Button className="bg-[#9d6a4e] hover:bg-[#b38872] text-white border-0 px-6 py-3 text-base font-semibold shadow-lg">
                     <ArrowRight className="w-4 h-4 mr-2" />
                     Explorar Productos
                   </Button>
@@ -542,17 +592,17 @@ export default function HomePage() {
                 <Button
                   onClick={handleGeneralWhatsApp}
                   variant="outline"
-                  className="border-[#ebcfc4] text-[#9d6a4e] hover:bg-[#f5f0ed] bg-transparent px-6 py-3 text-base font-semibold"
+                  className="border-white text-white hover:bg-white hover:text-[#9d6a4e] px-6 py-3 text-base font-semibold bg-transparent"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Consultar por WhatsApp
                 </Button>
               </div>
 
-              {/* Stats - SIN RATING */}
+              {/* Stats - SIN FONDOS */}
               <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                 <div className="text-center">
-                  <div className="text-xl md:text-2xl font-bold text-[#9d6a4e]">
+                  <div className="text-xl md:text-2xl font-bold text-white">
                     {loadingCounts ? (
                       <Loader2 className="w-6 h-6 animate-spin mx-auto" />
                     ) : countsError ? (
@@ -563,17 +613,17 @@ export default function HomePage() {
                       "0"
                     )}
                   </div>
-                  <div className="text-xs md:text-sm text-[#b38872]">Productos</div>
+                  <div className="text-xs md:text-sm text-white font-medium">Productos</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl md:text-2xl font-bold text-[#9d6a4e]">
+                  <div className="text-xl md:text-2xl font-bold text-white">
                     {loadingCounts ? (
                       <Loader2 className="w-6 h-6 animate-spin mx-auto" />
                     ) : (
                       categoriesWithProducts.length
                     )}
                   </div>
-                  <div className="text-xs md:text-sm text-[#b38872]">Categorías</div>
+                  <div className="text-xs md:text-sm text-white font-medium">Categorías</div>
                 </div>
               </div>
             </div>
@@ -585,7 +635,7 @@ export default function HomePage() {
       {!isSearching && (
         <section className="py-8 bg-white/50">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="text-center">
                 <div className="w-12 h-12 bg-[#ebcfc4] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Truck className="w-6 h-6 text-[#9d6a4e]" />
@@ -594,16 +644,6 @@ export default function HomePage() {
                 <p className="text-sm text-[#b38872]">
                   Entrega el mismo día en Moreno y alrededores. Rápido y confiable para que recibas tus productos al
                   instante.
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-12 h-12 bg-[#ebcfc4] rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Shield className="w-6 h-6 text-[#9d6a4e]" />
-                </div>
-                <h3 className="text-lg font-bold text-[#9d6a4e] mb-2">Garantía Total</h3>
-                <p className="text-sm text-[#b38872]">
-                  Productos de calidad garantizada. 30 días para devoluciones sin preguntas.
                 </p>
               </div>
 
@@ -720,8 +760,8 @@ export default function HomePage() {
                       >
                         <CardContent className="p-0">
                           {/* 🖼️ CONTENEDOR DE IMAGEN MEJORADO */}
-                          <div className="relative overflow-hidden bg-white">
-                            <div className="w-full h-56 flex items-center justify-center p-4">
+                          <div className="relative overflow-hidden bg-gray-50">
+                            <div className="w-full h-64 flex items-center justify-center p-3">
                               <img
                                 src={productImages[0] || "/placeholder.svg"}
                                 alt={product.name}
@@ -1177,8 +1217,8 @@ export default function HomePage() {
                           key={index}
                           onClick={() => goToImage(index)}
                           className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
-                              ? "border-[#9d6a4e] ring-2 ring-[#9d6a4e]/20"
-                              : "border-gray-200 hover:border-[#9d6a4e]/50"
+                            ? "border-[#9d6a4e] ring-2 ring-[#9d6a4e]/20"
+                            : "border-gray-200 hover:border-[#9d6a4e]/50"
                             }`}
                         >
                           <img
@@ -1245,10 +1285,6 @@ export default function HomePage() {
                       <li className="flex items-center">
                         <Truck className="w-4 h-4 mr-2 text-[#9d6a4e]" />
                         Envío en el día en Moreno y alrededores
-                      </li>
-                      <li className="flex items-center">
-                        <Shield className="w-4 h-4 mr-2 text-[#9d6a4e]" />
-                        Garantía de 30 días
                       </li>
                       <li className="flex items-center">
                         <CreditCard className="w-4 h-4 mr-2 text-[#9d6a4e]" />
