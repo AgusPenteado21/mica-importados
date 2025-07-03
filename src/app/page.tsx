@@ -534,7 +534,7 @@ export default function HomePage() {
               {bannerImages.map((image, index) => (
                 <div
                   key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ${index === currentBannerIndex ? "opacity-30" : "opacity-0"
+                  className={`absolute inset-0 transition-opacity duration-1000 ${index === currentBannerIndex ? "opacity-80" : "opacity-0"
                     }`}
                 >
                   <img
@@ -544,8 +544,8 @@ export default function HomePage() {
                   />
                 </div>
               ))}
-              {/* Overlay sutil para legibilidad del texto */}
-              <div className="absolute inset-0 bg-black/20"></div>
+              {/* Overlay con gradiente sutil para legibilidad del texto */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/40"></div>
             </div>
 
             {/* Indicadores del banner */}
